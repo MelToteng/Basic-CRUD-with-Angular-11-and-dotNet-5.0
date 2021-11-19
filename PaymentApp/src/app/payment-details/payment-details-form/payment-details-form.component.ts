@@ -12,33 +12,63 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class PaymentDetailsFormComponent implements OnInit {
 
-  constructor(public service: PaymentDetailService, private toastr:ToastrService) { }
+  constructor(public service: PaymentDetailService, private toastr: ToastrService) { }
 
   ngOnInit(): void {
   }
 
   onSubmit(form: NgForm) {
+
+    if (this.service.formData.paymentDetailId == 0)
+      this.insertRecord(form);
+    else
+      this.updateRecord(form);
+
+     
+  }
+
+  resetForm(form: NgForm) {
+    form.form.reset();
+
+    this.service.formData = new PaymentDetail();
+  }
+
+  insertRecord(form: NgForm) {
     this.service.postPaymentDetails().subscribe(
       res => {
 
-        this.toastr.success('Submitted Successfully','Payment Detail Register');
+        this.toastr.success('Submitted Successfully', 'Payment Detail Register');
 
         console.log(JSON.stringify(res));
 
+        this.service.refreshList();
+
         this.resetForm(form);
-       },
-      err => { 
+      },
+      err => {
 
-        this.toastr.error('Error Encountered.','Payment Detail Register');
-        console.log(`Error ${JSON.stringify(err)}`);}
-    );
-
+        this.toastr.error('Error Encountered.', 'Payment Detail Register');
+        console.log(`Error ${JSON.stringify(err)}`);
+      });
   }
 
-  resetForm(form:NgForm){
-    form.form.reset();
+  updateRecord(form: NgForm) {
 
-    this.service.formData=new PaymentDetail();
+    this.service.putPaymentDetails().subscribe(
+      res => {
+
+        this.toastr.info('Updated Successfully', 'Payment Detail Register');
+
+        console.log(JSON.stringify(res));
+
+        this.service.refreshList();
+
+        this.resetForm(form);
+      },
+      err => {
+        this.toastr.error('Error Encountered.', 'Payment Detail Register');
+        console.log(`Error ${JSON.stringify(err)}`);
+      });
   }
 
 }
